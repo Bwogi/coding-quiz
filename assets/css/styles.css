@@ -18,5 +18,9 @@ header {
 .btn-section {
     width: 600px;
     margin: 40px auto;
-    padding-bottom: 200px;
+    /* padding-bottom: 200px; */
+}
+
+.hide {
+    display: none;
 }
