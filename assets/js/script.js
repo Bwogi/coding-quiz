@@ -20,3 +20,26 @@ startBtn.addEventListener("click", function() {
 
 
 })
+
+// Array of Objects
+var quiz = [{
+        q: 'Commonly used data types DO Not Include:',
+        choices: ['strings', 'booleans', 'alerts', 'numbers'],
+        answer: 2
+    },
+    {
+        q: 'A very useful tool used during development and debugging for printing content to the debugger is: ',
+        choices: ['Javascript', 'termina/bash', 'for loops', 'console.log'],
+        answer: 3
+    },
+    {
+        q: 'The condition in an if / else statement is enclosed with ________.',
+        choices: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        answer: 0
+    },
+    {
+        q: 'Arrays in Javascript can be used to store _____________.',
+        choices: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        answer: 0
+    }
+];
