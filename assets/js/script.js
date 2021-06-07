@@ -1,148 +1,138 @@
-var startBtn = document.querySelector(".btn");
-var homeSection = document.querySelector(".home");
-var questionSection = document.querySelector(".questions")
-var questionNumber = document.querySelector(".question-number");
-var questionContent = document.querySelector(".question-text");
-var choiceSection = document.querySelector(".choices");
-var f_resultSection = document.querySelector(".f_result");
-var questionLimit = 4; // if you want all questions "quiz.length"
-let questionCounter = 0;
-let currentQuestion;
-let theQuestions = [];
-let theChoices = [];
-let qns_passed = 0;
-let done = 0;
+// remove the start button when clicked
+$('#start').on('click', function() {
+    $('#start').remove();
+    game.loadQuestion();
 
-// console.log(startBtn)
-startBtn.addEventListener("click", function() {
-    homeSection.classList.add("hide");
-    questionSection.classList.remove("hide");
-    setTheQuestions();
-    getNewQuestion();
+})
 
+// click event when you click the answer
 
-});
+$(document).on('click', '.answer-button', function(e) {
+    game.clicked(e);
+})
 
-function tryAgainQuiz() {
-    // hide the f_resultSection
-    f_resultSection.classList.add("hide");
-    // show the questionSection
-    questionSection.classList.remove("hide");
-    resetQuiz();
-    startQuiz();
-}
+$(document).on('click', '#reset', function() {
+    game.reset();
+})
 
-function setTheQuestions() {
-    var totalQuestion = quiz.length;
-    for (let i = 0; i < totalQuestion; i++) {
-        theQuestions.push(quiz[i]);
-    }
-}
+// Variable for questions, an array of objects 
 
-// set question number and question and Choices
-function getNewQuestion() {
-    // set question number 
-    questionNumber.innerHTML = "Question " + (questionCounter + 1) + " of " + questionLimit;
-
-    // set question text
-    // get random question
-    var questionIndex = theQuestions[Math.floor(Math.random() * theQuestions.length)];
-    currentQuestion = questionIndex;
-    questionContent.innerHTML = currentQuestion.q;
-    // get the position of 'questionIndex' from the availableQuestion Array
-    var index1 = theQuestions.indexOf(questionIndex);
-    // remove the 'questionIndex' from the availableQuestion Array, so that the question does not repeat
-    theQuestions.splice(index1, 1);
-    // show question img if 'img' property exists
-    if (currentQuestion.hasOwnProperty("img")) {
-        var img = document.createElement("img");
-        img.src = currentQuestion.img;
-        questionContent.appendChild(img);
-    }
-
-    // set Choices
-    // get the length of Choices
-    var choiceLen = currentQuestion.choices.length;
-    // push choices into theChoices Array
-    for (let i = 0; i < choiceLen; i++) {
-        theChoices.push(i)
-    }
-    choiceSection.innerHTML = '';
-    let animationDelay = 0.15;
-    // create choices in html
-    for (let i = 0; i < choiceLen; i++) {
-        // random choice
-        var choiceIndex = theChoices[Math.floor(Math.random() * theChoices.length)];
-        // get the position of 'choiceIndex' from the theChoices Array
-        var index2 = theChoices.indexOf(choiceIndex);
-        // remove the  'choiceIndex' from the theChoices Array , so that the choice does not repeat
-        theChoices.splice(index2, 1);
-        var choice = document.createElement("div");
-        choice.innerHTML = currentQuestion.choices[choiceIndex];
-        choice.id = choiceIndex;
-        //   choice.style.animationDelay = animationDelay + 's';
-        //   animationDelay = animationDelay + 0.15;
-        choice.className = "choice";
-        choiceSection.appendChild(choice);
-        choice.setAttribute("onclick", "getResult(this)");
-    }
-    console.log(theQuestions)
-    console.log(theChoices)
-    questionCounter++;
-}
-
-function next() {
-    if (questionCounter === questionLimit) {
-        quizOver();
-    } else {
-        getNewQuestion();
-    }
-}
-
-function quizOver() {
-    // hide quiz Box
-    questionSection.classList.add("hide");
-    // show result Box
-    f_resultSection.classList.remove("hide");
-    quizResult();
-}
-// get the quiz Result
-function quizResult() {
-    f_resultSection.querySelector(".total_qns").innerHTML = questionLimit;
-    f_resultSection.querySelector(".total_done").innerHTML = done;
-    f_resultSection.querySelector(".total-qns_passed").innerHTML = qns_passed;
-    f_resultSection.querySelector(".total-qns_failed").innerHTML = done - qns_passed;
-    var percentage = (qns_passed / questionLimit) * 100;
-    f_resultSection.querySelector(".percentage").innerHTML = percentage.toFixed(2) + "%";
-    f_resultSection.querySelector(".total-score").innerHTML = qns_passed + " / " + questionLimit;
-}
-
-function resetQuiz() {
-    questionCounter = 0;
-    qns_passed = 0;
-    done = 0;
-    theQuestions = [];
-}
-
-// Array of Questions
-var quiz = [{
-        q: 'Commonly used data types DO Not Include:',
-        choices: ['strings', 'booleans', 'alerts', 'numbers'],
-        answer: 2
+var questions = [{
+        question: "Commonly used data types DO Not Include:",
+        answers: ['strings', 'booleans', 'alerts', 'numbers'],
+        correctAnswer: 'alerts',
+    }, {
+        question: "A very useful tool used during development and debugging for printing content to the debugger is:",
+        answers: ['Javascript', 'terminal/bash', 'for loops', 'console.log'],
+        correctAnswer: "console.log",
+    }, {
+        question: "The condition in an if/else statement is enclosed with ________.",
+        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        correctAnswer: "quotes",
+    }, {
+        question: "The condition in an if/else statement is enclosed with ________.",
+        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        correctAnswer: "numbers and strings",
     },
-    {
-        q: 'A very useful tool used during development and debugging for printing content to the debugger is: ',
-        choices: ['Javascript', 'termina/bash', 'for loops', 'console.log'],
-        answer: 3
-    },
-    {
-        q: 'The condition in an if / else statement is enclosed with ________.',
-        choices: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
-        answer: 0
-    },
-    {
-        q: 'Arrays in Javascript can be used to store _____________.',
-        choices: ['numbers and strings', 'other arrays', 'booleans', 'all of the above'],
-        answer: 0
-    }
+
 ];
+
+
+var game = {
+    questions: questions,
+    currentQuestion: 0,
+    counter: 30,
+    correct: 0,
+    incorrect: 0,
+    unanswered: 0,
+
+    countdown: function() {
+        game.counter--;
+        $('#counter').html(game.counter);
+        if (game.counter <= 0) {
+            console.log("TIME UP!")
+            game.timeUp();
+        }
+    },
+    loadQuestion: function() {
+        timer = setInterval(game.countdown, 1000);
+        $('#subwrapper').html("<h2> Time to Guess: <span id ='counter'>30</span> Seconds</h2>");
+        $('#subwrapper').append('<h2>' + questions[game.currentQuestion].question + '</h2>');
+        for (var i = 0; i < questions[game.currentQuestion].answers.length; i++) {
+            $('#subwrapper').append('<button class="answer-button id="button- ' + i + '" data-name="' + questions[game.currentQuestion].answers[i] + '">' + questions[game.currentQuestion].answers[i] + '</button>');
+        }
+    },
+    nextQuestion: function() {
+        game.counter = 30;
+        $('#counter').html(game.counter);
+        game.currentQuestion++;
+        game.loadQuestion();
+
+    },
+    timeUp: function() {
+        clearInterval(timer);
+        game.unanswered++;
+        $('#subwrapper').html('<h2>Out of time!<h2>');
+        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 3 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 3 * 1000);
+        }
+
+    },
+    results: function() {
+        clearInterval(timer);
+        $('#subwrapper').html('<h2>Complete!</h2>')
+        $('#subwrapper').append(" Correct: " + game.correct + '<br/>');
+        $('#subwrapper').append(" Incorrect: " + game.incorrect + '<br/>');
+        $('#subwrapper').append(" Unanswered: " + game.unanswered + '<br/>');
+        $('#subwrapper').append("<button id= reset>Try again?</button>")
+
+
+    },
+    clicked: function(e) {
+        clearInterval(timer);
+        if ($(e.target).data("name") == questions[game.currentQuestion].correctAnswer) {
+            game.answeredCorrectly();
+        } else {
+            game.answeredIncorrectly();
+        }
+
+    },
+    answeredCorrectly: function() {
+        console.log("right!")
+        clearInterval(timer);
+        game.correct++;
+        $('#subwrapper').html('<h2> CORRECT!</h2>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 2 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 2 * 1000);
+        }
+
+    },
+    answeredIncorrectly: function() {
+        console.log("wrong")
+        clearInterval(timer);
+        game.incorrect++;
+        $('#subwrapper').html('<h2> Wrong!</h2>');
+        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 2 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 2 * 1000);
+        }
+
+    },
+    reset: function() {
+        game.currentQuestion = 0;
+        game.counter = 0;
+        game.correct = 0;
+        game.incorrect = 0;
+        game.unanswered = 0;
+        game.loadQuestion();
+
+    }
+
+}
