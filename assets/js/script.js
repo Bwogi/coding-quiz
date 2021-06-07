@@ -1,174 +1,137 @@
-$(document).ready(function() {
-
-    // event listeners
-    $("#remaining-time").hide();
-    $("#start").on('click', trivia.startGame);
-    $(document).on('click', '.option', trivia.guessChecker);
+// remove the start button when clicked
+$('#start').on('click', function() {
+    $('#start').remove();
+    game.loadQuestion();
 
 })
 
-var trivia = {
-    // trivia properties
+// click event when you click the answer
+
+$(document).on('click', '.answer-button', function(e) {
+    game.clicked(e);
+})
+
+$(document).on('click', '#reset', function() {
+    game.reset();
+})
+
+// Variable for questions, an array of objects 
+
+var questions = [{
+        question: "Commonly used data types DO Not Include:",
+        answers: ['strings', 'booleans', 'alerts', 'numbers'],
+        correctAnswer: 'alerts',
+    }, {
+        question: "A very useful tool used during development and debugging for printing content to the debugger is:",
+        answers: ['Javascript', 'terminal/bash', 'for loops', 'console.log'],
+        correctAnswer: "console.log",
+    }, {
+        question: "The condition in an if/else statement is enclosed with ________.",
+        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        correctAnswer: "quotes",
+    }, {
+        question: "The condition in an if/else statement is enclosed with ________.",
+        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
+        correctAnswer: "numbers and strings",
+    },
+
+];
+
+
+var game = {
+    questions: questions,
+    currentQuestion: 0,
+    counter: 30,
     correct: 0,
     incorrect: 0,
     unanswered: 0,
-    currentSet: 0,
-    timer: 20,
-    timerOn: false,
-    timerId: '',
-    // questions options and answers data
-    questions: {
-        q1: 'Commonly used data types DO Not Include:',
-        q2: 'A very useful tool used during development and debugging for printing content to the debugger is:',
-        q3: 'The condition in an if/else statement is enclosed with ________.',
-        q4: 'Arrays in Javascript can be used to store _____________.'
+
+    countdown: function() {
+        game.counter--;
+        $('#counter').html(game.counter);
+        if (game.counter <= 0) {
+            console.log("TIME UP!")
+            game.timeUp();
+        }
     },
-    options: {
-        q1: ['strings', 'booleans', 'alerts', 'numbers'],
-        q2: ['Javascript', 'terminal/bash', 'for loops', 'console.log'],
-        q3: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
-        q4: ['numbers and strings', 'other arrays', 'booleans', 'all of the above']
+    loadQuestion: function() {
+        timer = setInterval(game.countdown, 1000);
+        $('#subwrapper').html("<h2> Time to Guess: <span id ='counter'>30</span> Seconds</h2>");
+        $('#subwrapper').append('<h2>' + questions[game.currentQuestion].question + '</h2>');
+        for (var i = 0; i < questions[game.currentQuestion].answers.length; i++) {
+            $('#subwrapper').append('<button class="answer-button id="button- ' + i + '" data-name="' + questions[game.currentQuestion].answers[i] + '">' + questions[game.currentQuestion].answers[i] + '</button>');
+        }
     },
-    answers: {
-        q1: 'alerts',
-        q2: 'console.log',
-        q3: 'quotes',
-        q4: 'numbers and strings'
-    },
-    // trivia methods
-    // method to initialize game
-    startGame: function() {
-        // restarting game results
-        trivia.currentSet = 0;
-        trivia.correct = 0;
-        trivia.incorrect = 0;
-        trivia.unanswered = 0;
-        clearInterval(trivia.timerId);
-
-        // show game section
-        $('#game').show();
-
-        //  empty last results
-        $('#results').html('');
-
-        // show timer
-        $('#timer').text(trivia.timer);
-
-        // remove start button
-        $('#start').hide();
-
-        $('#remaining-time').show();
-
-        // ask first question
-        trivia.nextQuestion();
-
-    },
-    // method to loop through and display questions and options 
     nextQuestion: function() {
-
-        // set timer to 20 seconds each question
-        trivia.timer = 10;
-        $('#timer').removeClass('last-seconds');
-        $('#timer').text(trivia.timer);
-
-        // to prevent timer speed up
-        if (!trivia.timerOn) {
-            trivia.timerId = setInterval(trivia.timerRunning, 1000);
-        }
-
-        // gets all the questions then indexes the current questions
-        var questionContent = Object.values(trivia.questions)[trivia.currentSet];
-        $('#question').text(questionContent);
-
-        // an array of all the user options for the current question
-        var questionOptions = Object.values(trivia.options)[trivia.currentSet];
-
-        // creates all the trivia guess options in the html
-        $.each(questionOptions, function(index, key) {
-            $('#options').append($('<button class="option btn btn-info btn-lg">' + key + '</button>'));
-        })
+        game.counter = 30;
+        $('#counter').html(game.counter);
+        game.currentQuestion++;
+        game.loadQuestion();
 
     },
-    // method to decrement counter and count unanswered if timer runs out
-    timerRunning: function() {
-        // if timer still has time left and there are still questions left to ask
-        if (trivia.timer > -1 && trivia.currentSet < Object.keys(trivia.questions).length) {
-            $('#timer').text(trivia.timer);
-            trivia.timer--;
-            if (trivia.timer === 4) {
-                $('#timer').addClass('last-seconds');
-            }
-        }
-        // the time has run out and increment unanswered, run result
-        else if (trivia.timer === -1) {
-            trivia.unanswered++;
-            trivia.result = false;
-            clearInterval(trivia.timerId);
-            resultId = setTimeout(trivia.guessResult, 1000);
-            $('#results').html('<h3>Out of time! The answer was ' + Object.values(trivia.answers)[trivia.currentSet] + '</h3>');
-        }
-        // if all the questions have been shown end the game, show results
-        else if (trivia.currentSet === Object.keys(trivia.questions).length) {
-
-            // adds results of game (correct, incorrect, unanswered) to the page
-            $('#results')
-                .html('<h3>Thank you for playing!</h3>' +
-                    '<p>Correct: ' + trivia.correct + '</p>' +
-                    '<p>Incorrect: ' + trivia.incorrect + '</p>' +
-                    '<p>Unaswered: ' + trivia.unanswered + '</p>' +
-                    '<p>Please play again!</p>');
-
-            // hide game sction
-            $('#game').hide();
-
-            // show start button to begin a new game
-            $('#start').show();
+    timeUp: function() {
+        clearInterval(timer);
+        game.unanswered++;
+        $('#subwrapper').html('<h2>Out of time!<h2>');
+        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 3 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 3 * 1000);
         }
 
     },
-    // method to evaluate the option clicked
-    guessChecker: function() {
+    results: function() {
+        clearInterval(timer);
+        $('#subwrapper').html('<h2>Complete!</h2>')
+        $('#subwrapper').append(" Correct: " + game.correct + '<br/>');
+        $('#subwrapper').append(" Incorrect: " + game.incorrect + '<br/>');
+        $('#subwrapper').append(" Unanswered: " + game.unanswered + '<br/>');
+        $('#subwrapper').append("<button id= reset>Try again?</button>")
 
-        // timer ID for gameResult setTimeout
-        var resultId;
 
-        // the answer to the current question being asked
-        var currentAnswer = Object.values(trivia.answers)[trivia.currentSet];
-
-        // if the text of the option picked matches the answer of the current question, increment correct
-        if ($(this).text() === currentAnswer) {
-            // turn button green for correct
-            $(this).addClass('btn-success').removeClass('btn-info');
-
-            trivia.correct++;
-            clearInterval(trivia.timerId);
-            resultId = setTimeout(trivia.guessResult, 1000);
-            $('#results').html('<h3>Correct Answer!</h3>');
-        }
-        // else the user picked the wrong option, increment incorrect
-        else {
-            // turn button clicked red for incorrect
-            $(this).addClass('btn-danger').removeClass('btn-info');
-
-            trivia.incorrect++;
-            clearInterval(trivia.timerId);
-            resultId = setTimeout(trivia.guessResult, 1000);
-            $('#results').html('<h3>Better luck next time! ' + currentAnswer + '</h3>');
+    },
+    clicked: function(e) {
+        clearInterval(timer);
+        if ($(e.target).data("name") == questions[game.currentQuestion].correctAnswer) {
+            game.answeredCorrectly();
+        } else {
+            game.answeredIncorrectly();
         }
 
     },
-    // method to remove previous question results and options
-    guessResult: function() {
+    answeredCorrectly: function() {
+        console.log("right!")
+        clearInterval(timer);
+        game.correct++;
+        $('#subwrapper').html('<h2> CORRECT!</h2>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 2 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 2 * 1000);
+        }
 
-        // increment to next question set
-        trivia.currentSet++;
+    },
+    answeredIncorrectly: function() {
+        console.log("wrong")
+        clearInterval(timer);
+        game.incorrect++;
+        $('#subwrapper').html('<h2> Wrong!</h2>');
+        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
+        if (game.currentQuestion == questions.length - 1) {
+            setTimeout(game.results, 2 * 1000);
+        } else {
+            setTimeout(game.nextQuestion, 2 * 1000);
+        }
 
-        // remove the options and results
-        $('.option').remove();
-        $('#results h3').remove();
-
-        // begin next question
-        trivia.nextQuestion();
+    },
+    reset: function() {
+        game.currentQuestion = 0;
+        game.counter = 0;
+        game.correct = 0;
+        game.incorrect = 0;
+        game.unanswered = 0;
+        game.loadQuestion();
 
     }
 
