@@ -1,138 +1,305 @@
-// remove the start button when clicked
-$('#start').on('click', function() {
-    $('#start').remove();
-    game.loadQuestion();
+var timerEl = document.getElementById("timer");
+var startButton = document.getElementById("start-quiz");
+var quizContent = document.getElementById("quiz");
+var answerContent = document.getElementById("responses");
+var highScoreBtn = document.getElementById("high-scores");
 
-})
-
-// click event when you click the answer
-
-$(document).on('click', '.answer-button', function(e) {
-    game.clicked(e);
-})
-
-$(document).on('click', '#reset', function() {
-    game.reset();
-})
-
-// Variable for questions, an array of objects 
-
-var questions = [{
-        question: "Commonly used data types DO Not Include:",
-        answers: ['strings', 'booleans', 'alerts', 'numbers'],
-        correctAnswer: 'alerts',
-    }, {
-        question: "A very useful tool used during development and debugging for printing content to the debugger is:",
-        answers: ['Javascript', 'terminal/bash', 'for loops', 'console.log'],
-        correctAnswer: "console.log",
-    }, {
-        question: "The condition in an if/else statement is enclosed with ________.",
-        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
-        correctAnswer: "quotes",
-    }, {
-        question: "The condition in an if/else statement is enclosed with ________.",
-        answers: ['quotes', 'curly brackets', 'parenthesis', 'square brackets'],
-        correctAnswer: "numbers and strings",
-    },
-
+//Array of question objects
+var questionsArr = [
+  {
+    question:
+      "What data type in Javascript can hold multiple values as a list?",
+    answers: ["integer", "string", "array"],
+    correct: "array",
+  },
+  {
+    question: "A boolean is a variable that is either true of false",
+    answers: ["true", "false"],
+    correct: "true",
+  },
+  {
+    question:
+      "What programming language primarily controls the style of websites?",
+    answers: ["HTML", "Javascript", "C++", "CSS"],
+    correct: "CSS",
+  },
+  {
+    question: "What does DOM stand for?",
+    answers: [
+      "Display Oriented Mobility",
+      "Document Object Model",
+      "Driving Over Microprocessors",
+    ],
+    correct: "Document Object Model",
+  },
+  {
+    question:
+      "What command submits code to the main branch of a remote github repository?",
+    answers: [
+      "git status",
+      "git add .",
+      "git push origin main",
+      "git commit -m <message>?",
+    ],
+    correct: "git push origin main",
+  },
 ];
 
+// Counter to keep track of questions asked
+var quizCounter = 0;
 
-var game = {
-    questions: questions,
-    currentQuestion: 0,
-    counter: 30,
-    correct: 0,
-    incorrect: 0,
-    unanswered: 0,
+var score = 0;
 
-    countdown: function() {
-        game.counter--;
-        $('#counter').html(game.counter);
-        if (game.counter <= 0) {
-            console.log("TIME UP!")
-            game.timeUp();
-        }
-    },
-    loadQuestion: function() {
-        timer = setInterval(game.countdown, 1000);
-        $('#subwrapper').html("<h2> Time to Guess: <span id ='counter'>30</span> Seconds</h2>");
-        $('#subwrapper').append('<h2>' + questions[game.currentQuestion].question + '</h2>');
-        for (var i = 0; i < questions[game.currentQuestion].answers.length; i++) {
-            $('#subwrapper').append('<button class="answer-button id="button- ' + i + '" data-name="' + questions[game.currentQuestion].answers[i] + '">' + questions[game.currentQuestion].answers[i] + '</button>');
-        }
-    },
-    nextQuestion: function() {
-        game.counter = 30;
-        $('#counter').html(game.counter);
-        game.currentQuestion++;
-        game.loadQuestion();
+// Variable to keep track of how much time has passed
+var time = 0;
 
-    },
-    timeUp: function() {
-        clearInterval(timer);
-        game.unanswered++;
-        $('#subwrapper').html('<h2>Out of time!<h2>');
-        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
-        if (game.currentQuestion == questions.length - 1) {
-            setTimeout(game.results, 3 * 1000);
-        } else {
-            setTimeout(game.nextQuestion, 3 * 1000);
-        }
+// Variable for the countdown
+var timeInterval;
 
-    },
-    results: function() {
-        clearInterval(timer);
-        $('#subwrapper').html('<h2>Complete!</h2>')
-        $('#subwrapper').append(" Correct: " + game.correct + '<br/>');
-        $('#subwrapper').append(" Incorrect: " + game.incorrect + '<br/>');
-        $('#subwrapper').append(" Unanswered: " + game.unanswered + '<br/>');
-        $('#subwrapper').append("<button id= reset>Try again?</button>")
+//Variable for holding user's initials
+var initials;
 
-
-    },
-    clicked: function(e) {
-        clearInterval(timer);
-        if ($(e.target).data("name") == questions[game.currentQuestion].correctAnswer) {
-            game.answeredCorrectly();
-        } else {
-            game.answeredIncorrectly();
-        }
-
-    },
-    answeredCorrectly: function() {
-        console.log("right!")
-        clearInterval(timer);
-        game.correct++;
-        $('#subwrapper').html('<h2> CORRECT!</h2>');
-        if (game.currentQuestion == questions.length - 1) {
-            setTimeout(game.results, 2 * 1000);
-        } else {
-            setTimeout(game.nextQuestion, 2 * 1000);
-        }
-
-    },
-    answeredIncorrectly: function() {
-        console.log("wrong")
-        clearInterval(timer);
-        game.incorrect++;
-        $('#subwrapper').html('<h2> Wrong!</h2>');
-        $('#subwrapper').append('<h3>The correct answer was: ' + questions[game.currentQuestion].correctAnswer + '</h3>');
-        if (game.currentQuestion == questions.length - 1) {
-            setTimeout(game.results, 2 * 1000);
-        } else {
-            setTimeout(game.nextQuestion, 2 * 1000);
-        }
-
-    },
-    reset: function() {
-        game.currentQuestion = 0;
-        game.counter = 0;
-        game.correct = 0;
-        game.incorrect = 0;
-        game.unanswered = 0;
-        game.loadQuestion();
-
+// Function to keep track of the timer
+var timer = function (timeLeft) {
+  timeInterval = setInterval(function () {
+    var countdown = timerEl;
+    if (timeLeft >= 1) {
+      countdown.textContent = "Time left: " + timeLeft;
+      timeLeft--;
+      time = timeLeft;
+    } else {
+      countdown.textContent = "Out of time";
+      endGame();
     }
+  }, 1000);
+};
 
-}
+// Handles the quiz questions
+var quizHandler = function () {
+  time = timer(60);
+  addQuestion();
+};
+
+//Function to add question to page
+var addQuestion = function () {
+  var questionEl = document.createElement("div");
+
+  questionEl.className = "questions";
+
+  var questionObject = questionsArr[quizCounter];
+
+  questionEl.innerHTML = "<h2>" + questionObject.question + "</h2>";
+
+  //Iterates through array of buttons and displays each button
+  for (var i = 0; i < questionObject.answers.length; i++) {
+    var option = document.createElement("button");
+    option.className = "btn";
+    option.textContent = questionObject.answers[i];
+    questionEl.append(option);
+  }
+
+  quizContent.innerHTML = "";
+
+  quizContent.append(questionEl);
+};
+
+// Determines if answer is correct or incorrect
+var answerHandler = function (event) {
+  var targetEl = event.target.textContent;
+  var targetElClass = event.target.className;
+  var rightAnswer = questionsArr[quizCounter].correct;
+  var isRight = false;
+
+  //Check to make sure a button was clicked
+  if (targetElClass === "btn") {
+    if (targetEl === rightAnswer) {
+      score++;
+      isRight = true;
+    }
+    // Check to make sure button that was clicked was not the start quiz button
+    if (targetEl !== "Start Quiz") {
+      //Advance question counter
+      quizCounter++;
+      //If the user's answer was not right, subtract 10 seconds
+      if (targetEl !== rightAnswer) {
+        clearInterval(timeInterval);
+        timer(time - 10);
+      }
+      //Call function to tell user if they were right or wrong
+      answerMessage(isRight);
+      //Check if end of the game. If it is, show end game screen. If there are more questions, display question
+      if (quizCounter < 5) {
+        addQuestion();
+      } else {
+        endGame();
+      }
+    }
+  }
+};
+
+// Function to display user's answer
+var answerMessage = function (isRight) {
+  var answerEl = document.createElement("div");
+  answerEl.className = "answer";
+
+  //Check if user got the answer right or wrong and display appropriate message
+  if (isRight) {
+    answerEl.textContent = "You got question " + quizCounter + " correct!";
+  } else {
+    answerEl.textContent = "You got question " + quizCounter + " incorrect!";
+  }
+
+  answerContent.innerHTML = "";
+
+  answerContent.append(answerEl);
+};
+
+//Function to handle the end of game
+var endGame = function () {
+  quizContent.removeEventListener("click", answerHandler);
+
+  clearInterval(timeInterval);
+  quizContent.innerHTML = "";
+
+  //Create div to hold final quiz elements
+  var finalScreenEl = document.createElement("form");
+  finalScreenEl.className = "final-screen";
+
+  //Message indicating quiz is over
+  var finalMessage = document.createElement("h2");
+  finalMessage.textContent = "All done!";
+
+  finalScreenEl.append(finalMessage);
+
+  //Score
+  var finalScore = document.createElement("p");
+  finalScore.textContent = "Your score is " + score;
+  finalScreenEl.append(finalScore);
+
+  // Form to enter initials and take user to high score page
+  var finalForm = document.createElement("form");
+  finalForm.setAttribute("id", "submit-form");
+
+  //Input box
+  var inputBox = document.createElement("input");
+  inputBox.setAttribute("type", "text");
+  inputBox.setAttribute("name", "input-box");
+  inputBox.setAttribute("placeholder", "Please enter initials");
+
+  //Submission button
+  var submitBtn = document.createElement("button");
+  submitBtn.className = "btn";
+  submitBtn.setAttribute("id", "save-initials");
+  submitBtn.setAttribute("type", "submit");
+  submitBtn.textContent = "Submit";
+
+  //Add Form elements to form
+  finalForm.append(inputBox);
+  finalForm.append(submitBtn);
+
+  //Add form to final screen element
+  finalScreenEl.append(finalForm);
+
+  //Add final screen element to the window
+  quizContent.append(finalScreenEl);
+
+  //Event listener to handle user submission
+  finalForm.addEventListener("submit", submitHandler);
+};
+
+// Function to handle form submissions
+var submitHandler = function () {
+  //Get user input
+  initials = document.querySelector("input[name='input-box']").value;
+
+  //Create object using user's initial and score
+  var userScore = {
+    name: initials,
+    score: score,
+  };
+
+  //Add the score object to the array of score objects
+  highScores[highScores.length] = userScore;
+
+  //Save the array to localStorage
+  localStorage.setItem("scores", JSON.stringify(highScores));
+
+  //Call function to display scores
+  showHighScores();
+};
+
+// Function to display scores on page
+var showHighScores = function () {
+  quizContent.innerHTML = "";
+
+  var highScoreEl = document.createElement("div");
+
+  // Title element
+  var highScoreTitle = document.createElement("h2");
+  highScoreTitle.textContent = "High Scores";
+  highScoreEl.append(highScoreTitle);
+
+  //Scoreboard element
+  var scoreboard = document.createElement("div");
+  scoreboard.setAttribute("id", "scoreboard");
+
+  //Iterate through array to set scores on screen
+  for (i = 0; i < highScores.length; i++) {
+    var scoreEl = document.createElement("p");
+    scoreEl.textContent = highScores[i].name + ": " + highScores[i].score;
+    scoreboard.append(scoreEl);
+  }
+
+  var buttonEl = document.createElement("div");
+
+  //Button element to go back to start quiz screen
+  var backBtn = document.createElement("button");
+  backBtn.className = "btn";
+  backBtn.textContent = "Go Back";
+  backBtn.setAttribute("onclick", "location.href='./index.html'");
+
+  //Button element to clear cache
+  var clearBtn = document.createElement("button");
+  clearBtn.className = "btn";
+  clearBtn.textContent = "Clear High Scores";
+
+  buttonEl.append(backBtn);
+  buttonEl.append(clearBtn);
+
+  //Append elements to screen
+  highScoreEl.append(scoreboard);
+  highScoreEl.append(buttonEl);
+  quizContent.append(highScoreEl);
+
+  //eventListener for clear high scores button
+  clearBtn.addEventListener("click", clearHighScores);
+};
+
+//Function to loadLocalstorage scores
+var loadScores = function () {
+  var savedScores = localStorage.getItem("scores");
+
+  if (!savedScores) {
+    return [];
+  }
+
+  savedScores = JSON.parse(savedScores);
+
+  return savedScores;
+};
+
+//Function to clear high scores from localstorage
+var clearHighScores = function () {
+  highScores = [];
+  localStorage.setItem("scores", highScores);
+  //Send user back to home screen
+  window.location.href = "./index.html";
+  alert("High scores have been cleared");
+};
+
+startButton.addEventListener("click", quizHandler);
+quizContent.addEventListener("click", answerHandler);
+highScoreBtn.addEventListener("click", showHighScores);
+
+//Global variable to keep track of scores that have been saved already to localStorage
+var highScores = loadScores();

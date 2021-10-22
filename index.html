@@ -1,35 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coding Challenge Quiz</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
+    <!-- Google Fonts Roboto -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="/assets/css/mdb.min.css" />
+    <!-- MDB PLUGINS -->
+    <link rel="stylesheet" href="/assets/plugins/css/all.min.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <!-- Container wrapper -->
+      <div class="container-fluid">
+        <!-- Toggle button -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-mdb-toggle="collapse"
+          data-mdb-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i class="fas fa-bars"></i>
+        </button>
+    
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <!-- Navbar brand -->
+          <a class="navbar-brand mt-2 mt-lg-0" href="/">
+            <h4>Coding Quiz</h4>
+          </a>
+          <!-- Left links -->
+        
+          <!-- Left links -->
+        </div>
+        <!-- Collapsible wrapper -->
+    
+        <!-- Right elements -->
+        <div class="d-flex align-items-center">
+          <span id="timer">Time left</span>
+          <button class="btn btn-outline-primary score-btn" id="high-scores">High scores</button>
+          
+    
+    
+        
+        </div>
+        <!-- Right elements -->
+      </div>
+      <!-- Container wrapper -->
+    </nav>
+    
 
-<head>
-    <title> Coding Quiz Challenge </title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="./assets/css/styles.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-
-</head>
-
-<body>
     <div class="container">
-        <section class="intro center">
-            <h1>Coding Quiz Challenge</h1>
-            <p>Try to answer the following code related questions within the time limit. Keep in mind that all incorrect answers will penalise your score/time by 10 seconds!</p>
-
-            <a id="start" class="btn btn-primary btn-lg" href="#" role="button">Start!</a>
-            <div id="subwrapper">
-
-            </div>
-        </section>
+      <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+        <div class="text-center">
+    <div class="quiz" id="quiz">
+      <div class="container" id="container">
+          <h1 id="intro">Welcome to the Coding Quiz</h1>
+          <p id="explanation">
+            Welcome to the coding quiz. You have sixty seconds to complete five
+            questions. Each correct answer is worth one point. With each incorrect
+            answer, 10 seconds will be deducted from your time. <br /><br />
+            At the end of the quiz, you can enter your intials to the
+            leaderboards.<br /><br />Please press the start button to begin the
+            quiz.
+          </p>
+          <button class="btn btn-outline-success" id="start-quiz" type="button">Start Quiz</button>
+        </div>
+    </div>
+    <div class="responses" id="responses"></div>
 
     </div>
-    <script type="text/javascript" src="./assets/js/script.js"></script>
-</body>
+    </div>
+    </div>
 
+     <!-- MDB ESSENTIAL -->
+    <script src="assets/js/script.js"></script>
+
+  <!-- <script type="text/javascript" src="/assets/js/mdb.min.js"></script> -->
+  <!-- MDB PLUGINS -->
+  <script type="text/javascript" src="/assets/js/all.min.js"></script>
+  </body>
 </html>
